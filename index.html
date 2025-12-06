@@ -52,34 +52,6 @@
             color: #000;
         }
 
-        .menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            z-index: 200;
-            width: 44px;
-            height: 44px;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .menu-toggle span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: #fff;
-            transition: all 0.3s ease;
-        }
-
         .sidebar {
             position: fixed;
             left: 0;
@@ -130,7 +102,7 @@
             padding: 10px 14px;
             font-size: 14px;
             transition: all 0.2s ease;
-            cursor: pointer;
+            cursor: default;
             animation: slideInLeft 0.3s ease;
         }
 
@@ -293,6 +265,71 @@
             background: #ccc;
         }
 
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 200;
+            width: 44px;
+            height: 44px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 280px;
+                z-index: 150;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-area {
+                left: 0;
+            }
+
+            .stats {
+                display: none;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .input-container {
+                padding: 0 20px;
+            }
+        }
+
         .win-overlay {
             position: fixed;
             top: 0;
@@ -392,66 +429,6 @@
             background: #f5f5f5;
             border-color: #000;
         }
-
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: flex;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                width: 280px;
-                z-index: 150;
-                top: 0;
-                padding-top: 80px;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-area {
-                left: 0;
-            }
-
-            .stats {
-                display: none;
-            }
-
-            .header {
-                padding: 15px 20px;
-            }
-
-            .title {
-                font-size: 20px;
-            }
-
-            .input-container {
-                padding: 0 20px;
-            }
-
-            .reset-btn {
-                bottom: 20px;
-                right: 20px;
-                padding: 12px 24px;
-                font-size: 13px;
-            }
-
-            .win-popup {
-                margin: 20px;
-                padding: 30px;
-            }
-
-            .win-image {
-                width: 150px;
-                height: 150px;
-            }
-
-            .win-title {
-                font-size: 24px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -459,11 +436,12 @@
         <div class="title">Ciribigul.com</div>
         <div class="stats">
             <div class="stat-item">
+                <span id="foundCount">1</span> / <span id="totalCount">441</span> Found
             </div>
         </div>
     </div>
 
-    <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
         <span></span>
         <span></span>
         <span></span>
@@ -471,7 +449,7 @@
 
     <audio id="winSound" src="assets/win-sound.mp3" preload="auto"></audio>
 
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar">
         <h3>Rules</h3>
         <div class="rules-content">
             <p><strong>Goal:</strong> Find all combinations of "Ciribigul"</p>
@@ -481,13 +459,6 @@
                 <li>Examples: giribigul, ziriligul ✓</li>
                 <li>Not allowed: airibigul, eiriaigul ✗</li>
             </ul>
-        </div>
-
-        <h3>Stats</h3>
-        <div class="rules-content">
-            <div class="stat-item">
-                <span id="mobileFoundCount">1</span> / <span id="mobileTotalCount">441</span> Found
-            </div>
         </div>
 
         <h3>Found Words</h3>
@@ -525,18 +496,6 @@
         const totalCombinations = consonants.length * consonants.length;
         let foundWords = new Set(['ciribigul']);
         
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function closeMenuOnMobile() {
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.remove('open');
-            }
-        }
-
         function isValidWord(word) {
             word = word.toLowerCase().trim();
             
@@ -572,7 +531,6 @@
             addWordToList(word);
             updateStats();
             speakWord(word);
-            closeMenuOnMobile();
             
             if (foundWords.size === totalCombinations) {
                 setTimeout(() => showWinPopup(), 1000);
@@ -585,13 +543,16 @@
         }
 
         function speakWord(word) {
-            const firstPart = word.substring(0, 4);
-            const secondPart = word.substring(4);
+            
+            const firstPart = word.substring(0, 4);  
+            const secondPart = word.substring(4);     
             const spokenText = `${firstPart} ${secondPart}`;
             
             const utterance = new SpeechSynthesisUtterance(spokenText);
             
+            
             const voices = window.speechSynthesis.getVoices();
+            
             
             const preferredVoice = voices.find(voice => 
                 (voice.name.includes('Male') || voice.name.includes('male')) &&
@@ -604,8 +565,9 @@
                 utterance.voice = preferredVoice;
             }
             
-            utterance.pitch = 1.4;
-            utterance.rate = 1.57;
+            
+            utterance.pitch = 1.4;  
+            utterance.rate = 1.57;  
             
             window.speechSynthesis.speak(utterance);
         }
@@ -617,6 +579,7 @@
             wordEl.textContent = word;
             wordEl.title = 'Click to hear';
             wordEl.tabIndex = 0;
+            wordEl.style.cursor = 'pointer';
             wordEl.addEventListener('click', () => speakWord(word));
             wordEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -629,7 +592,6 @@
 
         function updateStats() {
             document.getElementById('foundCount').textContent = foundWords.size;
-            document.getElementById('mobileFoundCount').textContent = foundWords.size;
         }
 
         function showMessage(text, type) {
@@ -707,12 +669,24 @@
             updateStats();
             document.getElementById('wordInput').focus();
             
+            
             window.speechSynthesis.getVoices();
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.querySelector('.sidebar');
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+                document.querySelectorAll('.word-chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        sidebar.classList.remove('open');
+                    });
+                });
             }
         };
     </script>
 </body>
 </html>
-
