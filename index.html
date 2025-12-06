@@ -89,6 +89,30 @@
             margin: 6px 0;
         }
 
+        .mobile-stats {
+            display: none;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mobile-stats-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .mobile-stats-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .word-list {
             display: flex;
             flex-direction: column;
@@ -102,7 +126,7 @@
             padding: 10px 14px;
             font-size: 14px;
             transition: all 0.2s ease;
-            cursor: default;
+            cursor: pointer;
             animation: slideInLeft 0.3s ease;
         }
 
@@ -317,6 +341,10 @@
                 display: none;
             }
 
+            .mobile-stats {
+                display: block;
+            }
+
             .header {
                 padding: 15px 20px;
             }
@@ -449,10 +477,7 @@
 
     <audio id="winSound" src="assets/win-sound.mp3" preload="auto"></audio>
 
-    <div class="sidebar">
-        <div style="text-align: center; padding: 10px 0; margin-bottom: 20px; font-weight: 600; font-size: 16px; border-bottom: 1px solid #e0e0e0;">
-            <span id="sidebarFoundCount">1</span>/<span id="sidebarTotalCount">441</span> Found
-        </div>
+    <div class="sidebar" id="sidebar">
         <h3>Rules</h3>
         <div class="rules-content">
             <p><strong>Goal:</strong> Find all combinations of "Ciribigul"</p>
@@ -462,6 +487,13 @@
                 <li>Examples: giribigul, ziriligul ✓</li>
                 <li>Not allowed: airibigul, eiriaigul ✗</li>
             </ul>
+        </div>
+
+        <div class="mobile-stats">
+            <div class="mobile-stats-number">
+                <span id="mobileFoundCount">1</span> / <span id="mobileTotalCount">441</span>
+            </div>
+            <div class="mobile-stats-label">Words Found</div>
         </div>
 
         <h3>Found Words</h3>
@@ -516,6 +548,18 @@
             return { valid: true };
         }
 
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function closeMenuOnMobile() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.remove('open');
+            }
+        }
+
         function submitWord() {
             const input = document.getElementById('wordInput');
             const word = input.value.toLowerCase().trim();
@@ -534,6 +578,7 @@
             addWordToList(word);
             updateStats();
             speakWord(word);
+            closeMenuOnMobile();
             
             if (foundWords.size === totalCombinations) {
                 setTimeout(() => showWinPopup(), 1000);
@@ -546,16 +591,13 @@
         }
 
         function speakWord(word) {
-            
             const firstPart = word.substring(0, 4);  
             const secondPart = word.substring(4);     
             const spokenText = `${firstPart} ${secondPart}`;
             
             const utterance = new SpeechSynthesisUtterance(spokenText);
             
-            
             const voices = window.speechSynthesis.getVoices();
-            
             
             const preferredVoice = voices.find(voice => 
                 (voice.name.includes('Male') || voice.name.includes('male')) &&
@@ -567,7 +609,6 @@
             if (preferredVoice) {
                 utterance.voice = preferredVoice;
             }
-            
             
             utterance.pitch = 1.4;  
             utterance.rate = 1.57;  
@@ -582,7 +623,6 @@
             wordEl.textContent = word;
             wordEl.title = 'Click to hear';
             wordEl.tabIndex = 0;
-            wordEl.style.cursor = 'pointer';
             wordEl.addEventListener('click', () => speakWord(word));
             wordEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -595,8 +635,9 @@
 
         function updateStats() {
             document.getElementById('foundCount').textContent = foundWords.size;
+            document.getElementById('totalCount').textContent = totalCombinations;
             document.getElementById('mobileFoundCount').textContent = foundWords.size;
-            document.getElementById('sidebarFoundCount').textContent = foundWords.size;
+            document.getElementById('mobileTotalCount').textContent = totalCombinations;
         }
 
         function showMessage(text, type) {
@@ -674,22 +715,15 @@
             updateStats();
             document.getElementById('wordInput').focus();
             
-            
             window.speechSynthesis.getVoices();
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
             }
+
             const menuToggle = document.getElementById('menuToggle');
-            const sidebar = document.querySelector('.sidebar');
+            const sidebar = document.getElementById('sidebar');
             if (menuToggle && sidebar) {
-                menuToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('open');
-                });
-                document.querySelectorAll('.word-chip').forEach(chip => {
-                    chip.addEventListener('click', () => {
-                        sidebar.classList.remove('open');
-                    });
-                });
+                menuToggle.addEventListener('click', toggleMenu);
             }
         };
     </script>
