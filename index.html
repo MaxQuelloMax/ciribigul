@@ -16,8 +16,9 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: #fff;
             color: #000;
-            overflow: hidden;
-            height: 100vh;
+            overflow: auto;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
         .header {
@@ -276,6 +277,91 @@
 
             .stats {
                 display: none;
+            }
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .main-area {
+                padding: 20px;
+                align-items: stretch;
+                justify-content: flex-start;
+                overflow: auto;
+            }
+
+            .input-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            input[type="text"] {
+                padding: 14px 16px;
+                font-size: 18px;
+                border-radius: 12px;
+            }
+
+            .submit-btn {
+                position: static;
+                display: block;
+                width: 100%;
+                margin-top: 10px;
+                transform: none;
+                right: auto;
+                top: auto;
+            }
+
+            .word-list {
+                max-height: 36vh;
+                overflow-y: auto;
+            }
+
+            .word-chip {
+                font-size: 15px;
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .win-popup {
+                max-width: 92%;
+                padding: 20px;
+            }
+
+            .win-image {
+                width: 140px;
+                height: 140px;
+                margin-bottom: 16px;
+            }
+
+            .win-title {
+                font-size: 22px;
+            }
+
+            .win-text {
+                font-size: 15px;
+            }
+
+            .win-buttons {
+                flex-direction: column;
+            }
+
+            .win-btn {
+                width: 100%;
+                padding: 12px 16px;
+            }
+
+            .reset-btn {
+                right: 16px;
+                bottom: 16px;
+                padding: 12px 20px;
             }
         }
 
