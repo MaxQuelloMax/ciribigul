@@ -529,7 +529,31 @@
     <script>
         const consonants = 'bcdfghjklmnpqrstvwxyz'.split('');
         const totalCombinations = consonants.length * consonants.length;
-        let foundWords = new Set(['ciribigul']);
+
+        const STORAGE_KEY = 'ciribigul_foundWords';
+
+        function loadFoundWords() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return new Set(['ciribigul']);
+                const arr = JSON.parse(raw);
+                if (!Array.isArray(arr) || arr.length === 0) return new Set(['ciribigul']);
+                return new Set(arr.map(s => ('' + s).toLowerCase()));
+            } catch (e) {
+                console.warn('Failed to load found words from storage', e);
+                return new Set(['ciribigul']);
+            }
+        }
+
+        function saveFoundWords() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(foundWords)));
+            } catch (e) {
+                console.warn('Failed to save found words to storage', e);
+            }
+        }
+
+        let foundWords = loadFoundWords();
         
         function isValidWord(word) {
             word = word.toLowerCase().trim();
@@ -575,6 +599,7 @@
             }
             
             foundWords.add(word);
+            saveFoundWords();
             addWordToList(word);
             updateStats();
             speakWord(word);
@@ -686,8 +711,10 @@
 
         function resetGame() {
             foundWords = new Set(['ciribigul']);
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
             document.getElementById('wordList').innerHTML = '';
             addWordToList('ciribigul');
+            saveFoundWords();
             updateStats();
             document.getElementById('wordInput').value = '';
             closeWinPopup();
@@ -711,7 +738,11 @@
         });
 
         window.onload = function() {
-            addWordToList('ciribigul');
+            // Populate UI from stored foundWords
+            const listEl = document.getElementById('wordList');
+            listEl.innerHTML = '';
+            // Add items so the newest found appears first
+            Array.from(foundWords).reverse().forEach(w => addWordToList(w));
             updateStats();
             document.getElementById('wordInput').focus();
             
