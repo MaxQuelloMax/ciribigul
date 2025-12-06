@@ -450,6 +450,9 @@
     <audio id="winSound" src="assets/win-sound.mp3" preload="auto"></audio>
 
     <div class="sidebar">
+        <div style="text-align: center; padding: 10px 0; margin-bottom: 20px; font-weight: 600; font-size: 16px; border-bottom: 1px solid #e0e0e0;">
+            <span id="sidebarFoundCount">1</span>/<span id="sidebarTotalCount">441</span> Found
+        </div>
         <h3>Rules</h3>
         <div class="rules-content">
             <p><strong>Goal:</strong> Find all combinations of "Ciribigul"</p>
@@ -592,6 +595,8 @@
 
         function updateStats() {
             document.getElementById('foundCount').textContent = foundWords.size;
+            document.getElementById('mobileFoundCount').textContent = foundWords.size;
+            document.getElementById('sidebarFoundCount').textContent = foundWords.size;
         }
 
         function showMessage(text, type) {
