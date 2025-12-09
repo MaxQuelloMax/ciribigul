@@ -527,6 +527,77 @@
     </div>
 
     <script>
+        (function(){
+            'use strict';
+
+            const _anti = {
+                lastSubmitTime: 0,
+                submissionCount: 0,
+                lastInputTime: 0,
+                lastKeystrokes: [],
+                trustedInput: false
+            };
+
+            const MIN_SUBMIT_INTERVAL = 800; // ms
+            const MAX_RAPID_SUBMISSIONS = 5;
+            const MIN_TYPING_TIME = 150; // ms
+
+            let humanInteractionDetected = false;
+
+            document.addEventListener('mousemove', () => { humanInteractionDetected = true; }, { once: false });
+            document.addEventListener('click', () => { humanInteractionDetected = true; }, { once: false });
+            document.addEventListener('keydown', (e) => {
+                humanInteractionDetected = true;
+                _anti.lastKeystrokes.push({ key: e.key, time: Date.now() });
+                if (_anti.lastKeystrokes.length > 20) _anti.lastKeystrokes.shift();
+            }, { once: false });
+
+            const inputEl = () => document.getElementById('wordInput');
+            const onInput = (e) => {
+                _anti.lastInputTime = Date.now();
+            };
+
+            // attach input listener when DOM exists
+            document.addEventListener('DOMContentLoaded', () => {
+                const inp = inputEl();
+                if (inp) inp.addEventListener('input', onInput, { passive: true });
+            });
+
+            function detectAutomation() {
+                const now = Date.now();
+                const timeSinceLastSubmit = now - _anti.lastSubmitTime;
+
+                if (!_anti.trustedInput) {
+                    const timeSinceInput = now - (_anti.lastInputTime || 0);
+                    if (timeSinceInput < MIN_TYPING_TIME) {
+                        return true;
+                    }
+                }
+
+                if ((_anti.lastKeystrokes.length < 3) && inputEl() && inputEl().value.length > 3) {
+                    return true;
+                }
+
+                if (timeSinceLastSubmit < MIN_SUBMIT_INTERVAL) {
+                    _anti.submissionCount++;
+                    if (_anti.submissionCount > MAX_RAPID_SUBMISSIONS) {
+                        return true;
+                    }
+                } else {
+                    _anti.submissionCount = Math.max(0, _anti.submissionCount - 1);
+                }
+
+                _anti.lastSubmitTime = now;
+                return false;
+            }
+
+            window.antiAutomation = {
+                detect: detectAutomation,
+                humanInteraction: () => humanInteractionDetected,
+                markTrusted: () => { _anti.trustedInput = true; }
+            };
+        })();
+
         const consonants = 'bcdfghjklmnpqrstvwxyz'.split('');
         const totalCombinations = consonants.length * consonants.length;
 
@@ -540,7 +611,7 @@
                 if (!Array.isArray(arr) || arr.length === 0) return new Set(['ciribigul']);
                 return new Set(arr.map(s => ('' + s).toLowerCase()));
             } catch (e) {
-                console.warn('Failed to load found words from storage', e);
+                
                 return new Set(['ciribigul']);
             }
         }
@@ -549,7 +620,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(foundWords)));
             } catch (e) {
-                console.warn('Failed to save found words to storage', e);
+                
             }
         }
 
@@ -587,7 +658,17 @@
         function submitWord() {
             const input = document.getElementById('wordInput');
             const word = input.value.toLowerCase().trim();
-            
+            // Anti-automation check
+            try {
+                if (window.antiAutomation && window.antiAutomation.detect()) {
+                    showMessage('Please interact with the page before submitting.', 'error');
+                    input.value = '';
+                    return;
+                }
+            } catch (e) {
+                
+            }
+
             if (!word) return;
             
             const validation = isValidWord(word);
@@ -686,10 +767,13 @@
                     winSound.volume = 0.9;
                     const playPromise = winSound.play();
                     if (playPromise !== undefined) {
-                        playPromise.catch(err => console.warn('Unable to play win sound:', err));
+                        playPromise.catch(err => 
+                        {
+                            
+                        });
                     }
                 } catch (e) {
-                    console.warn('Error playing win sound', e);
+                    
                 }
             }
         }
@@ -704,7 +788,7 @@
                     winSound.pause();
                     winSound.currentTime = 0;
                 } catch (e) {
-                    console.warn('Error stopping win sound', e);
+                    
                 }
             }
         }
@@ -725,7 +809,7 @@
                     winSound.pause();
                     winSound.currentTime = 0;
                 } catch (e) {
-                    console.warn('Error resetting win sound', e);
+                    
                 }
             }
             showMessage('Game reset', 'success');
@@ -760,5 +844,4 @@
     </script>
 </body>
 </html>
-
 
