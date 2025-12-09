@@ -605,7 +605,7 @@
             speakWord(word);
             closeMenuOnMobile();
             
-            if (foundWords.size === 2) {
+            if (foundWords.size === totalCombinations) {
                 setTimeout(() => showWinPopup(), 1000);
             } else {
                 showMessage('Correct!', 'success');
@@ -760,4 +760,5 @@
     </script>
 </body>
 </html>
+
 
