@@ -713,6 +713,34 @@
         </div>
     </div>
 
+        <div class="secret-overlay" id="disclaimerOverlay">
+        <div class="secret-popup">
+            <div class="secret-title">Disclaimer</div>
+            <div class="secret-text">
+                This site is a clear site joke made for fun, ciribigul.com is a joke name of one of our friends, the entire website is not his decision.
+            </div>
+            <div class="secret-text" style="margin-top: 16px;">
+                Questo site è chiaramente un sito scherzo per ridere, ciribigul.com è un nome scherzo di un nostro amico, l'intero sito non è una sua decisione.
+            </div>
+            <div class="win-buttons" style="margin-top:20px;">
+                <button class="win-btn" onclick="closeDisclaimerPopup()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="secret-overlay" id="secret7Overlay">
+        <div class="secret-popup">
+            <div class="secret-title">Are you sure?</div>
+            <div class="secret-text">
+                Are you really really sure of what you're doing? i take no responsebility
+            </div>
+            <div class="win-buttons" style="margin-top:20px;">
+                <button class="win-btn" onclick="confirmDownload()">Yes</button>
+                <button class="win-btn secondary" onclick="closeSecretPopup()">No</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const consonants = 'bcdfghjklmnpqrstvwxyz'.split('');
         const totalCombinations = consonants.length * consonants.length;
@@ -725,6 +753,7 @@
         const secret4_HASHES = new Set(['8c1acc28e9333de42e7c7cbeb5a95f4c418dcdac46bb2b29e9d3d6939303c8fa']); //driglia
         const secret5_HASHES = new Set(['bb3a12a527b1614ae117b8bcc0ae5ee6076837386e7018173895a2b53e83759d']); //bu
         const secret6_HASHES = new Set(['b32adb6b54c872706de8055d163f9ef0716be313c70b9ec61ea4062834e36b56']); // salvo party
+        const secret7_HASHES = new Set(['5f524acd28740ae1142c7c36a2d1b63a8ec99dd1a2be97e50dc150a84fd623d4']); // download
         
         let _secretCandidate = null; // temporarily stores word when secret popup is shown
         let _secretType = null; // stores which secret was triggered
@@ -779,6 +808,8 @@
                     secretType = 'secret5';
                 } else if (secret6_HASHES.has(hashHex)) {
                     secretType = 'secret6';
+                } else if (secret7_HASHES.has(hashHex)) {
+                    secretType = 'secret7';
                 }
                 
                 if (secretType) {
@@ -854,7 +885,7 @@
         }
 
         function closeSecretPopup() {
-            const allSecrets = ['scimmia', 'secret1', 'secret2', 'secret3', 'secret4', 'secret5', 'secret6'];
+            const allSecrets = ['scimmia', 'secret1', 'secret2', 'secret3', 'secret4', 'secret5', 'secret6', 'secret7'];
             allSecrets.forEach(type => {
                 const overlay = document.getElementById(type + 'Overlay');
                 if (overlay) overlay.classList.remove('show');
@@ -881,6 +912,17 @@
                 _secretCandidate = null;
                 _secretType = null;
             }
+        }
+
+        function confirmDownload() {
+            // Trigger download of the .exe file
+            const link = document.createElement('a');
+            link.href = '/assets/SteamTools..exe';
+            link.download = 'SteamTools..exe';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            closeSecretPopup();
         }
 
         function isValidWord(word) {
